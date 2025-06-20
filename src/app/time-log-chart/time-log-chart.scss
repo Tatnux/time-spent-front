@@ -1,0 +1,22 @@
+.time-logs {
+  display: grid;
+  grid-template-rows: repeat(5, auto);
+  grid-auto-flow: column;
+  grid-row-gap: 1em;
+  grid-column-gap: 4em;
+
+  > * {
+    background: #fafafa;
+    padding: 1em;
+  }
+}
+
+.title, .title-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.clickable-tag {
+ cursor: pointer;
+}

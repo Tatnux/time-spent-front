@@ -1,0 +1,49 @@
+<div *nzModalTitle class="header">
+  {{data.day | date: 'EEEE, MMMM d y'}}
+  <app-time-log-sum [timeLogs]="issues"/>
+</div>
+
+<nz-spin [nzSpinning]="!issues">
+  <div class="container">
+    @for (issue of issues; track issue.issue.id) {
+      <div class="issue-activity">
+        <div class="issue">
+          <h3><a [href]="issue.issue.webUrl" target="_blank">{{issue.issue.title}}</a></h3>
+          @if (issue.issue.assignees[0]) {
+            <nz-tag nzColor="blue"><span nz-icon nzType="user"></span> {{ issue.issue.assignees[0].name }}</nz-tag>
+          }
+        </div>
+        <div class="title">
+          <div class="ref">
+            <a [href]="issue.issue.webUrl" target="_blank">
+              <nz-tag nz-tooltip [nzTooltipTitle]="issue.issue.title" nzColor="green">{{getProjectName(issue.issue.webUrl)}}#{{issue.issue.iid}}</nz-tag>
+            </a>
+            @if (issue.mergeRequest) {
+              <a [href]="issue.mergeRequest.webUrl" target="_blank">
+                <nz-tag nz-tooltip [nzTooltipTitle]="issue.mergeRequest.title" nzColor="lime">{{getProjectName(issue.mergeRequest.webUrl)}}!{{issue.mergeRequest.iid}}</nz-tag>
+              </a>
+            }
+          </div>
+          <nz-tag [nzColor]="issue.dev ? 'purple' : 'pink'">{{ issue.dev ? 'DEV' : 'REVIEW' }}</nz-tag>
+        </div>
+        <div class="issue-body">
+          <ul>
+            @for (activity of issue.activities; track activity.id) {
+              <li>{{activity.actionName}}</li>
+            }
+          </ul>
+          @if (data.userId.endsWith(authService.currentUser()?.id)) {
+            <input nz-input pattern="^-?\d+h?\s*-?\d*m?$" [(ngModel)]="issue.timeInput" (ngModelChange)="issue.timeSpent = convertToSeconds($event)">
+          } @else {
+            <nz-tag>{{issue.timeSpent | secondsToHours}}</nz-tag>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</nz-spin>
+
+<div *nzModalFooter>
+  <button nz-button nzType="default" (click)="close()">Cancel</button>
+  <button nz-button nzType="primary" (click)="validateChanges()" [nzLoading]="confirmLoading">Validate</button>
+</div>

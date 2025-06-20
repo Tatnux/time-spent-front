@@ -1,0 +1,53 @@
+nz-spin {
+  min-width: 300px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+.issue-activity {
+  background: #fafafa;
+  padding: 1em;
+}
+
+.issue {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2em;
+}
+
+.tags {
+  display: flex;
+  align-items: center;
+}
+
+.title {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: .5em;
+}
+
+.issue-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+}
+
+input {
+  max-width: 80px;
+}
+
+ul {
+  margin: 0 0 0 -20px;
+}
