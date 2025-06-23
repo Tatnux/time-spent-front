@@ -42,6 +42,11 @@ nz-spin {
   display: flex;
   justify-content: space-between;
   align-items: end;
+  gap: 1em;
+}
+
+.branch {
+  font-weight: 550;
 }
 
 input {

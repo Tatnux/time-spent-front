@@ -1,0 +1,12 @@
+{
+  "activity": {
+    "pushed to": "Pushed {{count}} commit(s) to {{type}}",
+    "pushed new": "Pushed {{count}} commit(s) to new {{type}}",
+    "approved": "Approved {{type}}",
+    "opened": "Opened new {{type}}",
+    "accepted": "Accepted {{type}}",
+    "deleted": "Deleted {{type}}",
+    "closed": "Closed {{type}}",
+    "commented on": "Added {{count}} comment(s) on {{type}}"
+  }
+}

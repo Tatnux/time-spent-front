@@ -27,11 +27,11 @@ export interface INoteData {
 export interface IActivityIssue {
   issue: IIssue;
   activities: IActivity[];
-  displayActivities: IDisplayActivity[];
-  mergeRequest: IMergeRequest;
-  dev: boolean;
   timeSpent: number;
-  timeInput: string;
+  displayActivities?: IDisplayActivity[];
+  mergeRequest?: IMergeRequest;
+  dev?: boolean;
+  timeInput?: string;
 }
 
 export interface IDisplayActivity {

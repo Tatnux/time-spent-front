@@ -106,6 +106,9 @@ export class TimeLogChart {
             }
           });
           this.loading = false;
+          for (let value of this.days.values()) {
+            value.sort((a, b) => b.timeSpent - a.timeSpent );
+          }
         },
         error: (err) => {
           console.error('Non connecté', err);

@@ -1,7 +1,7 @@
 <div *nzModalTitle class="header">
   {{data.day | date: 'EEEE, MMMM d y'}}
   <div>
-    <app-time-log-sum [timeLogs]="issues"/>
+    <app-time-log-sum [timeLogs]="data.timeLogs"/>
     @if (data.userId.endsWith(authService.currentUser()?.id)) {
       <app-time-log-sum [timeLogs]="getCurrentTimeSpent()"/>
     }
@@ -14,7 +14,7 @@
       <div class="issue-activity">
         <div class="issue">
           <h3><a [href]="issue.issue.webUrl" target="_blank">{{issue.issue.title}}</a></h3>
-          @if (issue.issue.assignees[0]) {
+          @if (issue.issue.assignees?.[0]) {
             <nz-tag nzColor="blue"><span nz-icon nzType="user"></span> {{ issue.issue.assignees[0].name }}</nz-tag>
           }
         </div>
@@ -35,14 +35,12 @@
           <ul>
             @for (activity of issue.displayActivities; track $index) {
               <li>
-                @if (activity.type === 'push') {
-                  Pushed {{ activity.count }} commit(s) to
-                } @else if (activity.actionName === 'approved' || activity.actionName === 'accepted' ||  activity.actionName === 'closed') {
-                  {{activity.actionName + ' ' | titlecase }}
-                } @else if (activity.type === 'comment') {
-                  Added {{activity.count}} comment(s) on
+                {{"activity." + activity.actionName | translate: {count: activity.count, type: activity.type} | pluralize: activity.count}}
+                @if (activity.type === 'branch') {
+                  <span class="branch">{{activity.name}}</span>
+                } @else {
+                  <a [href]="activity.webUrl" target="_blank">{{ activity.name }}</a>
                 }
-                <a [href]="activity.webUrl" target="_blank">{{ activity.name }}</a>
               </li>
             }
           </ul>
