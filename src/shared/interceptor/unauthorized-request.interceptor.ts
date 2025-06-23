@@ -11,7 +11,7 @@ export class UnauthorizedRequestInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(catchError(err => {
       if ([401, 403].includes(err.status)) {
-        window.location.href = 'http://localhost:8080/oauth2/authorization/gitlab';
+        window.location.href = 'http://localhost:8060/oauth2/authorization/gitlab';
       } else if (err.status === 0) {
         this.router.navigateByUrl('/api-error').catch(console.error);
       }

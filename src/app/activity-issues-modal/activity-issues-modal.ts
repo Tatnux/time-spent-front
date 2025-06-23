@@ -1,20 +1,20 @@
-import {Component, EventEmitter, inject, OnInit, Output} from '@angular/core';
-import {IIssue, ITimeLog} from '../../shared/models/time-log.model';
-import {NZ_MODAL_DATA, NzModalFooterDirective, NzModalRef, NzModalTitleDirective} from 'ng-zorro-antd/modal';
-import {forkJoin, Observable, of, Subscription} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
-import {NzSpinComponent} from 'ng-zorro-antd/spin';
-import {IActivityIssue} from '../../shared/models/activity.model';
-import {NzTagComponent} from 'ng-zorro-antd/tag';
-import {SecondsToHoursPipe} from '../../shared/pipe/secondes-to-hours.pipe';
-import {NzIconDirective} from 'ng-zorro-antd/icon';
-import {NzTooltipDirective} from 'ng-zorro-antd/tooltip';
-import {NzInputDirective} from 'ng-zorro-antd/input';
-import {FormsModule} from '@angular/forms';
-import {NzButtonComponent} from 'ng-zorro-antd/button';
-import {AuthService} from '../../shared/service/auth.service';
-import {DatePipe} from '@angular/common';
-import {TimeLogSumComponent} from '../time-log-chart/time-log-sum.component';
+import { Component, inject, OnInit } from '@angular/core';
+import { IIssue, ITimeLog } from '../../shared/models/time-log.model';
+import { NZ_MODAL_DATA, NzModalFooterDirective, NzModalRef, NzModalTitleDirective } from 'ng-zorro-antd/modal';
+import { forkJoin, Observable, of, Subscription } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { NzSpinComponent } from 'ng-zorro-antd/spin';
+import { IActivityIssue, IDisplayActivity } from '../../shared/models/activity.model';
+import { NzTagComponent } from 'ng-zorro-antd/tag';
+import { SecondsToHoursPipe } from '../../shared/pipe/secondes-to-hours.pipe';
+import { NzIconDirective } from 'ng-zorro-antd/icon';
+import { NzTooltipDirective } from 'ng-zorro-antd/tooltip';
+import { NzInputDirective } from 'ng-zorro-antd/input';
+import { FormsModule } from '@angular/forms';
+import { NzButtonComponent } from 'ng-zorro-antd/button';
+import { AuthService } from '../../shared/service/auth.service';
+import { DatePipe, TitleCasePipe } from '@angular/common';
+import { TimeLogSumComponent } from '../time-log-chart/time-log-sum.component';
 
 export interface ActivityIssuesModalData {
   userId: string;
@@ -43,7 +43,8 @@ export interface ITimeLogUpdate {
     NzModalFooterDirective,
     NzModalTitleDirective,
     DatePipe,
-    TimeLogSumComponent
+    TimeLogSumComponent,
+    TitleCasePipe
   ],
   templateUrl: './activity-issues-modal.html',
   styleUrl: './activity-issues-modal.scss'
@@ -73,21 +74,65 @@ export class ActivityIssuesModal implements OnInit {
       }).subscribe({
           next: (data: IActivityIssue[]) => {
             this.issues = data;
-            this.updateDevStatus();
+            this.updateActivities();
           },
           error: (err) => console.error('Non connecté', err)
         })
     );
   }
 
-  private updateDevStatus() {
+  private updateActivities() {
     this.issues.forEach(issue => {
       issue.dev = issue.activities.some(activity => activity.actionName === 'pushed to') &&
       this.data.userId.endsWith(issue.issue.assignees[0]?.id);
       issue.timeSpent = this.getTimeSpent(issue.issue);
       issue.timeInput = SecondsToHoursPipe.transform(issue.timeSpent);
+      this.updateDisplayActivities(issue);
+
     });
     this.issues.sort(a => a.dev ? -1 : 1)
+  }
+
+  private updateDisplayActivities(issue: IActivityIssue) {
+    issue.displayActivities = [];
+    issue.activities.forEach(activity => {
+      let displayActivity: IDisplayActivity = issue.displayActivities.find(value => value.actionName === activity.actionName);
+      if(!displayActivity) {
+        let name: string;
+        let webUrl: string;
+        let type: string;
+        if(activity.pushData) {
+          name = activity.pushData?.ref;
+          webUrl = this.issueLinkToBranchLink(issue.issue.webUrl, name)
+          type = 'push';
+        } else if(activity.targetIid === issue.issue?.iid) {
+          name = '#' + issue.issue.iid;
+          webUrl = issue.issue.webUrl;
+          type = 'comment';
+        } else if(activity.targetIid === issue.mergeRequest?.iid) {
+          name = '!' + issue.mergeRequest.iid;
+          webUrl = issue.mergeRequest.webUrl;
+          type = 'comment';
+        }
+
+        displayActivity = {actionName: activity.actionName, count: 0, name, webUrl, type};
+        issue.displayActivities.push(displayActivity);
+      }
+
+      displayActivity.count += activity.pushData?.commitCount ?? 1;
+    })
+  }
+
+  issueLinkToBranchLink(issueUrl: string, branch: string): string {
+    const match = RegExp(/^(https:\/\/[^/]+\/[^/]+\/[^/]+)\/-\/issues\/(\d+)$/).exec(issueUrl);
+
+    if (!match) {
+      throw new Error('Invalid GitLab issue URL');
+    }
+
+    const baseUrl = match[1];
+
+    return `${baseUrl}/-/tree/${branch}`;
   }
 
   getTimeSpent(issue: IIssue): number {

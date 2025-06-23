@@ -33,8 +33,17 @@
         </div>
         <div class="issue-body">
           <ul>
-            @for (activity of issue.activities; track activity.id) {
-              <li>{{activity.actionName}}</li>
+            @for (activity of issue.displayActivities; track $index) {
+              <li>
+                @if (activity.type === 'push') {
+                  Pushed {{ activity.count }} commit(s) to
+                } @else if (activity.actionName === 'approved' || activity.actionName === 'accepted' ||  activity.actionName === 'closed') {
+                  {{activity.actionName + ' ' | titlecase }}
+                } @else if (activity.type === 'comment') {
+                  Added {{activity.count}} comment(s) to
+                }
+                <a [href]="activity.webUrl" target="_blank">{{ activity.name }}</a>
+              </li>
             }
           </ul>
           @if (data.userId.endsWith(authService.currentUser()?.id)) {
