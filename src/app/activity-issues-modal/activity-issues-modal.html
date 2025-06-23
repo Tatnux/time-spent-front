@@ -1,6 +1,11 @@
 <div *nzModalTitle class="header">
   {{data.day | date: 'EEEE, MMMM d y'}}
-  <app-time-log-sum [timeLogs]="issues"/>
+  <div>
+    <app-time-log-sum [timeLogs]="issues"/>
+    @if (data.userId.endsWith(authService.currentUser()?.id)) {
+      <app-time-log-sum [timeLogs]="getCurrentTimeSpent()"/>
+    }
+  </div>
 </div>
 
 <nz-spin [nzSpinning]="!issues">

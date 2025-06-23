@@ -143,4 +143,8 @@ export class ActivityIssuesModal implements OnInit {
       }
     });
   }
+
+  getCurrentTimeSpent(): { timeSpent: number }[] {
+    return this.issues?.map(value => ({timeSpent: this.convertToSeconds(value.timeInput)})) ?? [];
+  }
 }
