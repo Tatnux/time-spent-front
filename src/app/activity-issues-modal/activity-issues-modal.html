@@ -40,7 +40,7 @@
                 } @else if (activity.actionName === 'approved' || activity.actionName === 'accepted' ||  activity.actionName === 'closed') {
                   {{activity.actionName + ' ' | titlecase }}
                 } @else if (activity.type === 'comment') {
-                  Added {{activity.count}} comment(s) to
+                  Added {{activity.count}} comment(s) on
                 }
                 <a [href]="activity.webUrl" target="_blank">{{ activity.name }}</a>
               </li>

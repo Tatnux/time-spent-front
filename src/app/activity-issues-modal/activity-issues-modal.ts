@@ -109,7 +109,7 @@ export class ActivityIssuesModal implements OnInit {
           name = '#' + issue.issue.iid;
           webUrl = issue.issue.webUrl;
           type = 'comment';
-        } else if(activity.targetIid === issue.mergeRequest?.iid) {
+        } else if(activity.targetIid === issue.mergeRequest?.iid || activity.note?.noteableIid === issue.mergeRequest?.iid) {
           name = '!' + issue.mergeRequest.iid;
           webUrl = issue.mergeRequest.webUrl;
           type = 'comment';
