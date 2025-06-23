@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  hostname: 'localhost',
-  port: 8060,
-  protocol: 'http',
+  hostname: 'timelogs.matthyymatth.fr',
+  port: 443,
+  protocol: 'https',
 };

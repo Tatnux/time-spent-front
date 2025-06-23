@@ -1,0 +1,31 @@
+kind: pipeline
+type: docker
+name: build
+
+steps:
+  - name: build
+    image: node:22
+    commands:
+      - npm install
+      - npm run build
+  - name: deploy
+    image: alpine
+    volumes:
+      - name: deploy-target
+        path: /deploy
+    commands:
+      - rm -rf /deploy/*
+      - cp -r dist/time-spent/browser/* /deploy/
+      - chmod -R 755 /deploy/
+
+    when:
+      event:
+        - push
+        - custom
+      branch:
+        - master
+
+volumes:
+  - name: deploy-target
+    host:
+      path: /home/tatnux/time-spent/front/browser
