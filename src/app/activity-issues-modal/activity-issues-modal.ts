@@ -124,11 +124,11 @@ export class ActivityIssuesModal implements OnInit {
         // Moved Issue
         } else if(issue.issue.moved) {
           activity.actionName = 'moved';
+          type = 'issue';
           const movedIssue: IActivityIssue = this.issues.find((value: IActivityIssue) => value.issue.id === issue.issue.movedTo.id);
           if(movedIssue) {
             name = this.getProjectName(movedIssue.issue.webUrl) + '#' + movedIssue.issue.iid;
             webUrl = movedIssue.issue.webUrl;
-            type = 'issue';
           }
         // Issue Ref
         } else if(targetIid === issue.issue?.iid) {
