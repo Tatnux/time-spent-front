@@ -15,4 +15,5 @@ export interface IIssue {
   webUrl: string;
   projectId: number;
   assignees: IGitlabUser[];
+  movedToId: number;
 }

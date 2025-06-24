@@ -118,6 +118,14 @@ export class ActivityIssuesModal implements OnInit {
         if(activity.pushData) {
           name = activity.pushData?.ref;
           type = 'branch';
+        } else if(issue.issue.movedToId > 0 && activity.actionName === 'closed') {
+          activity.actionName = 'moved';
+          const movedIssue = this.issues.find(value => value.issue.id.endsWith(issue.issue.movedToId.toString()));
+          if(movedIssue) {
+            name = this.getProjectName(movedIssue.issue.webUrl) + '#' + movedIssue.issue.iid;
+            webUrl = movedIssue.issue.webUrl;
+            type = 'issue';
+          }
         } else if(targetIid === issue.issue?.iid) {
           name = '#' + issue.issue.iid;
           webUrl = issue.issue.webUrl;

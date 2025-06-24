@@ -7,6 +7,7 @@
     "accepted": "Accepted {{type}}",
     "deleted": "Deleted {{type}}",
     "closed": "Closed {{type}}",
-    "commented on": "Added {{count}} comment(s) on {{type}}"
+    "commented on": "Added {{count}} comment(s) on {{type}}",
+    "moved":  "Moved {{type}} to"
   }
 }
