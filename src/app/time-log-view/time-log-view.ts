@@ -9,6 +9,7 @@ import {UsersService} from '../../shared/service/users.service';
 import {IterationService, iterationToUrl} from '../../shared/service/iteration.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {IGitlabUser, IUser} from '../../shared/models/user.model';
+import {UsernamePipe} from '../../shared/pipe/username.pipe';
 
 @Component({
   selector: 'app-time-log-view',
@@ -16,7 +17,8 @@ import {IGitlabUser, IUser} from '../../shared/models/user.model';
     TimeLogChart,
     NzSelectModule,
     NzOptionComponent,
-    FormsModule
+    FormsModule,
+    UsernamePipe
   ],
   templateUrl: './time-log-view.html',
   styleUrl: './time-log-view.scss'

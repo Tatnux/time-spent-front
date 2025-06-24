@@ -15,7 +15,7 @@
         <div class="issue">
           <h3><a [href]="issue.issue.webUrl" target="_blank">{{issue.issue.title}}</a></h3>
           @if (issue.issue.assignees?.[0]) {
-            <nz-tag nzColor="blue"><span nz-icon nzType="user"></span> {{ issue.issue.assignees[0].name }}</nz-tag>
+            <nz-tag nzColor="blue"><span nz-icon nzType="user"></span> {{ issue.issue.assignees[0].name | username}}</nz-tag>
           }
         </div>
         <div class="title">

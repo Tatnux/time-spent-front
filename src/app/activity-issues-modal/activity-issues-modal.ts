@@ -17,6 +17,7 @@ import {DatePipe} from '@angular/common';
 import {TimeLogSumComponent} from '../time-log-chart/time-log-sum.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {PluralizePipe} from '../../shared/pipe/pluralize.pipe';
+import {UsernamePipe} from '../../shared/pipe/username.pipe';
 
 export interface ActivityIssuesModalData {
   userId: string;
@@ -47,7 +48,8 @@ export interface ITimeLogUpdate {
     DatePipe,
     TimeLogSumComponent,
     TranslatePipe,
-    PluralizePipe
+    PluralizePipe,
+    UsernamePipe
   ],
   templateUrl: './activity-issues-modal.html',
   styleUrl: './activity-issues-modal.scss'
