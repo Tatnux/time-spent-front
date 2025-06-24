@@ -8,4 +8,5 @@ export interface IGitlabUser extends IUser {
   name: string;
   avatarUrl: string;
   publicEmail: string;
+  lastActivityOn: string;
 }

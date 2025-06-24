@@ -1,5 +1,5 @@
-import {IIssue} from './time-log.model';
 import {IMergeRequest} from './merge-request.model';
+import {IIssue} from './issue.model';
 
 export interface IActivity {
   id: number;
@@ -14,6 +14,7 @@ export interface IPushData {
   commitCount: number;
   refType: string;
   ref: string;
+  commitTitle: string;
 }
 
 export interface INoteData {
@@ -29,7 +30,7 @@ export interface IActivityIssue {
   activities: IActivity[];
   timeSpent: number;
   displayActivities?: IDisplayActivity[];
-  mergeRequest?: IMergeRequest;
+  mergeRequest?: IMergeRequest[];
   dev?: boolean;
   timeInput?: string;
 }
@@ -41,4 +42,5 @@ export interface IDisplayActivity {
   count: number;
   type?: string;
   targetType?: string;
+  tooltips: string[];
 }

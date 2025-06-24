@@ -3,6 +3,7 @@ import {IGitlabUser, IUser} from '../models/user.model';
 import {Subscription} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {UsersService} from './users.service';
+import {environment} from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -29,5 +30,16 @@ export class AuthService  {
           error: (err) => console.error('Unable to get current user', err)
         })
     );
+    if(environment.hostname === 'localhost') {
+      this.subscription.add(
+        http.get('/api/user/token', {responseType: 'text'})
+          .subscribe({
+            next: (data) => {
+              console.log(data);
+            },
+            error: (err) => console.error('Unable to get current user', err)
+          })
+      );
+    }
   }
 }

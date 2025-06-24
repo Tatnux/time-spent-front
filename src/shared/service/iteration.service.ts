@@ -37,7 +37,7 @@ export class IterationService implements OnDestroy {
   }
 
   private sortFn(a: IIteration, b: IIteration) {
-    return a.startDate.localeCompare(b.startDate) ? 1 : -1;
+    return b.startDate.localeCompare(a.startDate);
   }
 }
 

@@ -23,9 +23,9 @@
             <a [href]="issue.issue.webUrl" target="_blank">
               <nz-tag nz-tooltip [nzTooltipTitle]="issue.issue.title" nzColor="green">{{getProjectName(issue.issue.webUrl)}}#{{issue.issue.iid}}</nz-tag>
             </a>
-            @if (issue.mergeRequest) {
-              <a [href]="issue.mergeRequest.webUrl" target="_blank">
-                <nz-tag nz-tooltip [nzTooltipTitle]="issue.mergeRequest.title" nzColor="lime">{{getProjectName(issue.mergeRequest.webUrl)}}!{{issue.mergeRequest.iid}}</nz-tag>
+            @for (mr of issue.mergeRequest; track mr.id) {
+              <a [href]="mr.webUrl" target="_blank">
+                <nz-tag nz-tooltip [nzTooltipTitle]="mr.title" nzColor="lime">{{getProjectName(mr.webUrl)}}!{{mr.iid}}</nz-tag>
               </a>
             }
           </div>
@@ -34,7 +34,14 @@
         <div class="issue-body">
           <ul>
             @for (activity of issue.displayActivities; track $index) {
-              <li>
+              <ng-template #tooltip>
+                <ul>
+                  @for (tooltip of activity.tooltips; track $index) {
+                    <li>{{tooltip}}</li>
+                  }
+                </ul>
+              </ng-template>
+              <li [nz-tooltip]="activity.tooltips.length > 0 ? tooltip : null" nzTooltipPlacement="left">
                 {{"activity." + activity.actionName | translate: {count: activity.count, type: activity.type} | pluralize: activity.count}}
                 @if (activity.type === 'branch') {
                   <span class="branch">{{activity.name}}</span>

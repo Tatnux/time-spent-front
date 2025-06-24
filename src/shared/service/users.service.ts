@@ -16,7 +16,10 @@ export class UsersService implements OnDestroy {
     effect(() => {
       this.subscription.add(
         this.http.get<IGitlabUser[]>('/api/users').subscribe({
-          next: (data: IGitlabUser[]) => this.users.set(data),
+          next: (data: IGitlabUser[]) => {
+            data.sort((a, b) => b.lastActivityOn.localeCompare(a.lastActivityOn));
+            this.users.set(data);
+          },
           error: (err) => console.error('Unable to get users list', err)
         })
       );

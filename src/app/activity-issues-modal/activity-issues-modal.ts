@@ -1,5 +1,5 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {IIssue, ITimeLog} from '../../shared/models/time-log.model';
+import {ITimeLog} from '../../shared/models/time-log.model';
 import {NZ_MODAL_DATA, NzModalFooterDirective, NzModalRef, NzModalTitleDirective} from 'ng-zorro-antd/modal';
 import {forkJoin, Observable, of, Subscription} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
@@ -18,6 +18,8 @@ import {TimeLogSumComponent} from '../time-log-chart/time-log-sum.component';
 import {TranslatePipe} from '@ngx-translate/core';
 import {PluralizePipe} from '../../shared/pipe/pluralize.pipe';
 import {UsernamePipe} from '../../shared/pipe/username.pipe';
+import {IMergeRequest} from '../../shared/models/merge-request.model';
+import {IIssue} from '../../shared/models/issue.model';
 
 export interface ActivityIssuesModalData {
   userId: string;
@@ -115,29 +117,48 @@ export class ActivityIssuesModal implements OnInit {
         let webUrl: string;
         let type: string;
         const targetIid: number = activity?.note?.noteableIid ?? activity.targetIid;
+        // Pushed
         if(activity.pushData) {
           name = activity.pushData?.ref;
           type = 'branch';
-        } else if(issue.issue.movedToId > 0 && activity.actionName === 'closed') {
+        // Moved Issue
+        } else if(issue.issue.moved) {
           activity.actionName = 'moved';
-          const movedIssue = this.issues.find(value => value.issue.id.endsWith(issue.issue.movedToId.toString()));
+          const movedIssue: IActivityIssue = this.issues.find((value: IActivityIssue) => value.issue.id === issue.issue.movedTo.id);
           if(movedIssue) {
             name = this.getProjectName(movedIssue.issue.webUrl) + '#' + movedIssue.issue.iid;
             webUrl = movedIssue.issue.webUrl;
             type = 'issue';
           }
+        // Issue Ref
         } else if(targetIid === issue.issue?.iid) {
           name = '#' + issue.issue.iid;
           webUrl = issue.issue.webUrl;
           type = 'issue';
-        } else if(targetIid === issue.mergeRequest?.iid) {
-          name = '!' + issue.mergeRequest.iid;
-          webUrl = issue.mergeRequest.webUrl;
-          type = 'merge request';
+        // Merge Request Ref
+        } else {
+          const mergeRequest: IMergeRequest = issue.mergeRequest.find(value => value.iid === targetIid);
+          if(mergeRequest) {
+            name = '!' + mergeRequest.iid;
+            webUrl = mergeRequest.webUrl;
+            type = 'merge request';
+          }
         }
 
-        displayActivity = {actionName: activity.actionName, count: 0, name, webUrl, type};
+        displayActivity = {
+          actionName: activity.actionName,
+          count: 0,
+          name,
+          webUrl,
+          type,
+          tooltips: []
+        };
+
         issue.displayActivities.push(displayActivity);
+      }
+
+      if(displayActivity.actionName.startsWith("pushed")) {
+        displayActivity.tooltips.push(activity.pushData.commitTitle)
       }
 
       displayActivity.count += activity.pushData?.commitCount ?? 1;
@@ -172,7 +193,7 @@ export class ActivityIssuesModal implements OnInit {
     this.ref.destroy();
   }
 
-  public validateChanges() {
+  public validateChanges(): void {
     const requests: Observable<Object>[] = this.issues
       .map((value: IActivityIssue) => {
         const seconds: number = this.convertToSeconds(value.timeInput);
@@ -180,26 +201,27 @@ export class ActivityIssuesModal implements OnInit {
         return {timeSpent: seconds - timeSpent, issueId: value.issue.id, spentAt: this.data.day};
       })
       .filter((value: ITimeLogUpdate) => value.timeSpent !== 0)
-      .map((value: ITimeLogUpdate) => this.http.post('/api/timespent/create', {timeSpent: SecondsToHoursPipe.transform(value.timeSpent), issueId: value.issueId, spentAt: value.spentAt}));
+      .map((value: ITimeLogUpdate) => this.http.post('/api/timespent/create', {timeSpent: SecondsToHoursPipe.transform(value.timeSpent, false), issueId: value.issueId, spentAt: value.spentAt}));
 
     if (requests.length === 0) {
       this.close();
-      return of([]);
+      return
     }
 
     this.confirmLoading = true;
-    return forkJoin(requests).subscribe({
-      next: value => {
-        console.log(value)
-        this.confirmLoading = false;
-        this.data.updateTimeLog();
-        this.close();
-      },
-      error: (err) => {
-        console.log(err)
-        this.confirmLoading = false;
-      }
-    });
+    this.subscription.add(
+      forkJoin(requests).subscribe({
+        next: () => {
+          this.confirmLoading = false;
+          this.data.updateTimeLog();
+          this.close();
+        },
+        error: (err) => {
+          console.log(err)
+          this.confirmLoading = false;
+        }
+      })
+    );
   }
 
   getCurrentTimeSpent(): { timeSpent: number }[] {

@@ -1,4 +1,4 @@
-import {IGitlabUser} from './user.model';
+import {IIssue} from './issue.model';
 
 export interface ITimeLog {
   id: string;
@@ -7,13 +7,3 @@ export interface ITimeLog {
   timeSpent: number;
 }
 
-export interface IIssue {
-  id: string;
-  iid: number;
-  title: string;
-  state: string;
-  webUrl: string;
-  projectId: number;
-  assignees: IGitlabUser[];
-  movedToId: number;
-}
