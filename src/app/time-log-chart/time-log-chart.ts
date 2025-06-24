@@ -1,4 +1,4 @@
-import {Component, effect, input, InputSignal} from '@angular/core';
+import {Component, effect, input, InputSignal, signal, WritableSignal} from '@angular/core';
 import {ApexChart} from 'ng-apexcharts';
 import {IIteration} from '../../shared/models/iteration.model';
 import {ITimeLog} from '../../shared/models/time-log.model';
@@ -10,8 +10,10 @@ import {NzSpinComponent} from 'ng-zorro-antd/spin';
 import {NzModalService} from 'ng-zorro-antd/modal';
 import {NzIconDirective} from 'ng-zorro-antd/icon';
 import {ActivityIssuesModal, ActivityIssuesModalData} from '../activity-issues-modal/activity-issues-modal';
-import {IUser} from '../../shared/models/user.model';
+import {IGitlabUser, IUser} from '../../shared/models/user.model';
 import {TimeLogSumComponent} from './time-log-sum.component';
+import {UsersService} from '../../shared/service/users.service';
+import {IterationService, iterationToUrl} from '../../shared/service/iteration.service';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -50,10 +52,8 @@ export const options: Partial<ChartOptions> = {
 })
 export class TimeLogChart {
 
-  protected readonly dateFormat: string = 'EEEE, MMMM d y'
-
-  iteration: InputSignal<IIteration> = input();
   user: InputSignal<IUser> = input();
+  iteration: InputSignal<IIteration> = input();
 
   days: Map<string, ITimeLog[]> = new Map();
   loading: boolean = true;
@@ -111,7 +111,7 @@ export class TimeLogChart {
           }
         },
         error: (err) => {
-          console.error('Non connecté', err);
+          console.error('Unable to get time logs', err);
           this.loading = false;
         }
       });
@@ -119,10 +119,6 @@ export class TimeLogChart {
 
   private dateToKey(date: Date): string {
     return formatDate(date, 'yyyy-MM-dd', 'en-US');
-  }
-
-  getSumOfDay(day: string) {
-    return this.days.get(day)?.reduce((a, b) => a + b.timeSpent, 0);
   }
 
   openEditModal(day: string) {

@@ -1,12 +1,14 @@
-import {Component, effect, OnInit} from '@angular/core';
-import {Subscription} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
+import {Component, effect, input, Input, InputSignal, signal, WritableSignal} from '@angular/core';
 import {IIteration} from '../../shared/models/iteration.model';
 import {TimeLogChart} from '../time-log-chart/time-log-chart';
-import {IGitlabUser, IUser} from '../../shared/models/user.model';
-import {NzOptionComponent, NzSelectComponent, NzSelectModule} from 'ng-zorro-antd/select';
+import {NzOptionComponent, NzSelectModule} from 'ng-zorro-antd/select';
 import {FormsModule} from '@angular/forms';
 import {AuthService} from '../../shared/service/auth.service';
+import {formatDate} from '@angular/common';
+import {UsersService} from '../../shared/service/users.service';
+import {IterationService, iterationToUrl} from '../../shared/service/iteration.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {IGitlabUser, IUser} from '../../shared/models/user.model';
 
 @Component({
   selector: 'app-time-log-view',
@@ -19,69 +21,39 @@ import {AuthService} from '../../shared/service/auth.service';
   templateUrl: './time-log-view.html',
   styleUrl: './time-log-view.scss'
 })
-export class TimeLogView implements OnInit {
+export class TimeLogView {
 
-  private readonly subscription: Subscription = new Subscription();
+  user: InputSignal<IUser> = input();
+  iteration: InputSignal<IIteration> = input();
 
-  protected users: IGitlabUser[];
-  protected iteration: IIteration;
-  protected iterations: IIteration[] = [];
-  selectedUser: IUser;
+  selectedUser: WritableSignal<IUser> = signal(undefined);
+  selectedIteration: WritableSignal<IIteration> = signal(undefined);
 
-
-  constructor(private readonly http: HttpClient,
-              private readonly authService: AuthService) {
+  constructor(private readonly router: Router,
+              readonly authService: AuthService,
+              protected readonly usersService: UsersService,
+              protected readonly iterationService: IterationService) {
+    effect(() => {
+      this.selectedUser.set(this.user() ?? usersService.users().find(value =>
+        value.username === authService.currentUser()?.username));
+      this.selectedIteration.set(this.iteration() ?? this.iterationService.currentIteration());
+    });
+    effect(() => {
+      this.router.navigate([iterationToUrl(this.selectedIteration()), this.selectedUser().username]).catch(console.error);
+    })
   }
 
-  ngOnInit() {
-    this.subscription.add(
-      this.http.get<IIteration[]>('/api/iteration/current')
-        .subscribe({
-          next: (data) => {
-            this.iteration = data[0];
-            this.iterations.push(this.iteration);
-            this.sortIteration();
-          },
-          error: (err) => console.error('Non connecté', err)
-        })
-    );
-
-    this.subscription.add(
-      this.http.get<IIteration[]>('/api/iteration/closed')
-        .subscribe({
-          next: (data) => {
-            this.iterations.push(...data);
-            this.sortIteration();
-          },
-          error: (err) => console.error('Non connecté', err)
-        })
-    );
-
-    this.subscription.add(
-      this.http.get<IGitlabUser[]>('/api/users', { withCredentials: true })
-        .subscribe({
-          next: (data: IGitlabUser[]) => {
-            this.users = data;
-            this.selectedUser = this.users.find((value: IGitlabUser) => value.username === this.authService.currentUser().username);
-          },
-          error: (err) => console.error('Non connecté', err)
-        })
-    );
-
-    this.subscription.add(
-      this.http.get('/api/user/token', { responseType: 'text' })
-        .subscribe({
-          next: (data) => {
-            console.log(data);
-          },
-          error: (err) => console.error('Non connecté', err)
-        })
-    );
+  protected iterationDisplay(iteration: IIteration): string {
+    const start = new Date(iteration.startDate);
+    const end = new Date(iteration.dueDate);
+    return `${this.formatIterationDate(start, start.getFullYear() !== end.getFullYear())} - ${this.formatIterationDate(end)}`
   }
 
-  private sortIteration() {
-    this.iterations.sort((a, b) => a?.startDate.localeCompare(b?.startDate) ? -1 : 1);
+  private formatIterationDate(date: Date, year: boolean = true): string {
+    let format: string = 'MMM d'
+    if(year) {
+      format += ', yyyy';
+    }
+    return formatDate(date, format, 'en-US');
   }
-
-
 }

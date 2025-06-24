@@ -1,15 +1,18 @@
 <div class="select">
-  <nz-select [(ngModel)]="selectedUser" [nzShowSearch]="true">
-    @for (user of users; track user.id) {
+  <nz-select [ngModel]="selectedUser()" (ngModelChange)="selectedUser.set($event)" [nzShowSearch]="true">
+    @for (user of usersService.users(); track user.id) {
       <nz-option [nzValue]="user" [nzLabel]="user.name"/>
     }
   </nz-select>
 
-  <nz-select [(ngModel)]="iteration" [nzShowSearch]="true">
-    @for (iteration of iterations; track iteration.id) {
-      <nz-option [nzValue]="iteration" [nzLabel]="iteration.startDate + ' -> ' + iteration.dueDate"/>
+  <nz-select [ngModel]="selectedIteration()" (ngModelChange)="selectedIteration.set($event)" [nzShowSearch]="true">
+    @for (iteration of iterationService.iterations(); track iteration.id) {
+      <nz-option [nzValue]="iteration" [nzLabel]="iteration.state === 'current' ? 'Current' : iterationDisplay(iteration)"/>
     }
   </nz-select>
 </div>
 
-<app-time-log-chart [iteration]="iteration" [user]="selectedUser"/>
+@if (selectedUser() && selectedIteration()) {
+  <app-time-log-chart [user]="selectedUser()" [iteration]="selectedIteration()"/>
+}
+

@@ -6,7 +6,7 @@
         <div class="day">
           <div class="title">
             <h3>
-              {{day | date: dateFormat}}
+              {{day | date: 'EEEE, MMMM d y'}}
             </h3>
             <div class="title-actions">
               <app-time-log-sum [timeLogs]="timeLogs"/>
