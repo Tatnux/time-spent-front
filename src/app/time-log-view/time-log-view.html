@@ -12,7 +12,5 @@
   </nz-select>
 </div>
 
-@if (selectedUser() && selectedIteration()) {
-  <app-time-log-chart [user]="selectedUser()" [iteration]="selectedIteration()"/>
-}
+<app-time-log-chart [user]="selectedUser()" [iteration]="selectedIteration()"/>
 

@@ -1,26 +1,26 @@
-<nz-spin [nzSpinning]="loading">
-  @if (!loading) {
-    <div class="time-logs">
-      @for (day of days.keys(); track $index) {
-        @let timeLogs = days.get(day);
-        <div class="day">
-          <div class="title">
-            <h3>
-              {{day | date: 'EEEE, MMMM d y'}}
-            </h3>
-            <div class="title-actions">
-              <app-time-log-sum [timeLogs]="timeLogs"/>
-              <nz-tag class="clickable-tag" (click)="openEditModal(day)"><span nz-icon nzType="edit"></span></nz-tag>
-            </div>
-          </div>
-          @for (timeLog of timeLogs; track $index) {
-            <p>
-              <nz-tag>{{timeLog.timeSpent | secondsToHours}}</nz-tag>
-              <a [href]="timeLog.issue.webUrl" target="_blank">{{timeLog.issue.title}}</a>
-            </p>
+<div class="time-logs">
+  @for (day of days.keys(); track $index) {
+    @let timeLogs = days.get(day);
+    <div class="day">
+      <div class="title">
+        <h3>
+          {{day | date: 'EEEE, MMMM d y'}}
+        </h3>
+        <div class="title-actions">
+          @if (!loading) {
+            <app-time-log-sum [timeLogs]="timeLogs"/>
+            <nz-tag class="clickable-tag" (click)="openEditModal(day)"><span nz-icon nzType="edit"></span></nz-tag>
           }
         </div>
-      }
+      </div>
+      <nz-skeleton [nzActive]="true" [nzLoading]="loading" [nzParagraph]="{rows: 2}" [nzTitle]="null">
+        @for (timeLog of timeLogs; track $index) {
+          <p>
+            <nz-tag>{{timeLog.timeSpent | secondsToHours}}</nz-tag>
+            <a [href]="timeLog.issue.webUrl" target="_blank">{{timeLog.issue.title}}</a>
+          </p>
+        }
+      </nz-skeleton>
     </div>
   }
-</nz-spin>
+</div>

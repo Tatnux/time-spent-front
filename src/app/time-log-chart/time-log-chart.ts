@@ -1,41 +1,16 @@
-import {Component, effect, input, InputSignal, signal, WritableSignal} from '@angular/core';
-import {ApexChart} from 'ng-apexcharts';
+import {Component, effect, input, InputSignal} from '@angular/core';
 import {IIteration} from '../../shared/models/iteration.model';
 import {ITimeLog} from '../../shared/models/time-log.model';
 import {DatePipe, formatDate} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {SecondsToHoursPipe} from '../../shared/pipe/secondes-to-hours.pipe';
 import {NzTagComponent} from 'ng-zorro-antd/tag';
-import {NzSpinComponent} from 'ng-zorro-antd/spin';
 import {NzModalService} from 'ng-zorro-antd/modal';
 import {NzIconDirective} from 'ng-zorro-antd/icon';
 import {ActivityIssuesModal, ActivityIssuesModalData} from '../activity-issues-modal/activity-issues-modal';
-import {IGitlabUser, IUser} from '../../shared/models/user.model';
+import {IUser} from '../../shared/models/user.model';
 import {TimeLogSumComponent} from './time-log-sum.component';
-import {UsersService} from '../../shared/service/users.service';
-import {IterationService, iterationToUrl} from '../../shared/service/iteration.service';
-
-export type ChartOptions = {
-  series: ApexAxisChartSeries;
-  chart: ApexChart;
-  xaxis: ApexXAxis;
-  yaxis: ApexYAxis;
-  title: ApexTitleSubtitle;
-  theme: ApexTheme;
-  tooltip: ApexTooltip;
-  colors: any[];
-  stroke: ApexStroke;
-  legend: ApexLegend;
-  annotations: ApexAnnotations;
-};
-
-export const options: Partial<ChartOptions> = {
-  chart: {
-    type: "bar",
-    stacked: true,
-
-  }
-}
+import {NzSkeletonComponent} from 'ng-zorro-antd/skeleton';
 
 @Component({
   selector: 'app-time-log-chart',
@@ -43,9 +18,9 @@ export const options: Partial<ChartOptions> = {
     SecondsToHoursPipe,
     DatePipe,
     NzTagComponent,
-    NzSpinComponent,
     NzIconDirective,
-    TimeLogSumComponent
+    TimeLogSumComponent,
+    NzSkeletonComponent
   ],
   templateUrl: './time-log-chart.html',
   styleUrl: './time-log-chart.scss'
