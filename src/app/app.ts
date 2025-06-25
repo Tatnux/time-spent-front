@@ -7,8 +7,7 @@ import {Layout} from './layout/layout';
   imports: [
     Layout
   ],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  template: '<app-layout/>',
 })
 export class App  {
   protected title = 'time-spent';

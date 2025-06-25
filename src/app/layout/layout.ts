@@ -1,11 +1,5 @@
 import {Component, effect} from '@angular/core';
-import {
-  NzContentComponent,
-  NzHeaderComponent,
-  NzLayoutComponent,
-  NzLayoutModule,
-  NzSiderComponent
-} from 'ng-zorro-antd/layout';
+import {NzContentComponent, NzLayoutComponent, NzLayoutModule, NzSiderComponent} from 'ng-zorro-antd/layout';
 import {NzMenuDirective, NzMenuItemComponent, NzMenuModule, NzSubMenuComponent} from 'ng-zorro-antd/menu';
 import {Router, RouterOutlet} from '@angular/router';
 import {IterationService, iterationToUrl} from '../../shared/service/iteration.service';
@@ -22,7 +16,6 @@ import {UsernamePipe} from '../../shared/pipe/username.pipe';
     NzLayoutComponent,
     NzSiderComponent,
     NzMenuDirective,
-    NzHeaderComponent,
     NzContentComponent,
     NzSubMenuComponent,
     NzMenuItemComponent,
