@@ -1,0 +1,11 @@
+<div class="select">
+  <nz-select [ngModel]="usersService.selectedUser()" (ngModelChange)="usersService.selectedUser.set($event)" [nzShowSearch]="true">
+    @for (user of usersService.users(); track user.id) {
+      <nz-option [nzValue]="user" [nzLabel]="user.name | username"/>
+    }
+  </nz-select>
+</div>
+
+<app-time-log-chart/>
+
+

@@ -1,16 +1,18 @@
-import {Component, effect, input, InputSignal} from '@angular/core';
-import {IIteration} from '../../shared/models/iteration.model';
-import {ITimeLog} from '../../shared/models/time-log.model';
+import {Component, effect, input, InputSignal, Signal} from '@angular/core';
+import {IIteration} from '../../../shared/models/iteration.model';
+import {ITimeLog} from '../../../shared/models/time-log.model';
 import {DatePipe, formatDate} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
-import {SecondsToHoursPipe} from '../../shared/pipe/secondes-to-hours.pipe';
+import {SecondsToHoursPipe} from '../../../shared/pipe/secondes-to-hours.pipe';
 import {NzTagComponent} from 'ng-zorro-antd/tag';
 import {NzModalService} from 'ng-zorro-antd/modal';
 import {NzIconDirective} from 'ng-zorro-antd/icon';
 import {ActivityIssuesModal, ActivityIssuesModalData} from '../activity-issues-modal/activity-issues-modal';
-import {IUser} from '../../shared/models/user.model';
+import {IUser} from '../../../shared/models/user.model';
 import {TimeLogSumComponent} from './time-log-sum.component';
 import {NzSkeletonComponent} from 'ng-zorro-antd/skeleton';
+import {UsersService} from '../../../shared/service/users.service';
+import {IterationService} from '../../../shared/service/iteration.service';
 
 @Component({
   selector: 'app-time-log-chart',
@@ -27,18 +29,22 @@ import {NzSkeletonComponent} from 'ng-zorro-antd/skeleton';
 })
 export class TimeLogChart {
 
-  user: InputSignal<IUser> = input();
-  iteration: InputSignal<IIteration> = input();
+  user: Signal<IUser>;
+  iteration: Signal<IIteration>;
 
   days: Map<string, ITimeLog[]> = new Map();
   loading: boolean = true;
 
-  constructor(private readonly http: HttpClient,
+  constructor(usersService: UsersService, iterationService: IterationService,
+              private readonly http: HttpClient,
               private readonly modalService: NzModalService) {
+    this.user = usersService.selectedUser;
+    this.iteration = iterationService.selectedIteration;
     effect(() => {
-      this.iteration();
-      this.fillWeekdaysBetween();
-      this.fillTimeLogs();
+      if(this.user() && this.iteration()) {
+        this.fillWeekdaysBetween();
+        this.fillTimeLogs();
+      }
     });
   }
 
@@ -97,20 +103,32 @@ export class TimeLogChart {
   }
 
   openEditModal(day: string) {
-    const data: ActivityIssuesModalData = {
-      userId: this.user().id,
-      day: day,
-      timeLogs: this.days.get(day),
-      updateTimeLog: () => {
-        this.fillWeekdaysBetween();
-        this.fillTimeLogs();
+    if(this.isEditable(day)) {
+      const data: ActivityIssuesModalData = {
+        userId: this.user().id,
+        day: day,
+        timeLogs: this.days.get(day),
+        updateTimeLog: () => {
+          this.fillWeekdaysBetween();
+          this.fillTimeLogs();
+        }
       }
+      this.modalService.create({
+        nzContent: ActivityIssuesModal,
+        nzData: data,
+        nzWidth: 'fit-content',
+        nzCloseIcon: null
+      })
     }
-    this.modalService.create({
-      nzContent: ActivityIssuesModal,
-      nzData: data,
-      nzWidth: 'fit-content',
-      nzCloseIcon: null
-    })
+  }
+
+  isEditable(date: string) {
+    const inputDate = new Date(date);
+    const today = new Date();
+
+    inputDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    return inputDate <= today;
   }
 }

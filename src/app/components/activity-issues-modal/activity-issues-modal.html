@@ -10,26 +10,36 @@
 
 <nz-spin [nzSpinning]="!issues">
   <div class="container">
-    @for (issue of issues; track issue.issue.id) {
+    @for (issue of issues; track issue.id) {
       <div class="issue-activity">
+        @let entity = issue.issue ?? issue.mergeRequest[0];
         <div class="issue">
-          <h3><a [href]="issue.issue.webUrl" target="_blank">{{issue.issue.title}}</a></h3>
-          @if (issue.issue.assignees?.[0]) {
-            <nz-tag nzColor="blue"><span nz-icon nzType="user"></span> {{ issue.issue.assignees[0].name | username}}</nz-tag>
+          <h3>
+            <a [href]="entity.webUrl" target="_blank">{{entity.title}}</a>
+          </h3>
+          @if (entity.assignees[0]) {
+            <nz-tag nzColor="blue"><span nz-icon nzType="user"></span> {{ entity.assignees[0].name | username}}</nz-tag>
           }
         </div>
         <div class="title">
           <div class="ref">
-            <a [href]="issue.issue.webUrl" target="_blank">
-              <nz-tag nz-tooltip [nzTooltipTitle]="issue.issue.title" nzColor="green">{{getProjectName(issue.issue.webUrl)}}#{{issue.issue.iid}}</nz-tag>
-            </a>
+            @if (issue.issue) {
+              <a [href]="issue.issue.webUrl" target="_blank">
+                <nz-tag nz-tooltip [nzTooltipTitle]="issue.issue.title" nzColor="green">{{getProjectName(issue.issue.webUrl)}}#{{issue.issue.iid}}</nz-tag>
+              </a>
+            }
             @for (mr of issue.mergeRequest; track mr.id) {
               <a [href]="mr.webUrl" target="_blank">
-                <nz-tag nz-tooltip [nzTooltipTitle]="mr.title" nzColor="lime">{{getProjectName(mr.webUrl)}}!{{mr.iid}}</nz-tag>
+                <nz-tag nz-tooltip [nzTooltipTitle]="mr.title" nzColor="volcano">{{getProjectName(mr.webUrl)}}!{{mr.iid}}</nz-tag>
               </a>
             }
           </div>
-          <nz-tag [nzColor]="issue.dev ? 'purple' : 'pink'">{{ issue.dev ? 'DEV' : 'REVIEW' }}</nz-tag>
+          <div class="state-tags">
+            @if (!issue.issue) {
+              <nz-tag nzColor="red">Unlinked MR</nz-tag>
+            }
+            <nz-tag [nzColor]="issue.status === 'Dev' ? 'purple' : 'pink'">{{ issue.status }}</nz-tag>
+          </div>
         </div>
         <div class="issue-body">
           <ul>
@@ -51,10 +61,12 @@
               </li>
             }
           </ul>
-          @if (data.userId.endsWith(authService.currentUser()?.id)) {
-            <input nz-input pattern="^-?\d+h?\s*-?\d*m?$" [(ngModel)]="issue.timeInput" (ngModelChange)="issue.timeSpent = convertToSeconds($event)">
-          } @else {
-            <nz-tag>{{issue.timeSpent | secondsToHours}}</nz-tag>
+          @if (issue.issue) {
+            @if (data.userId.endsWith(authService.currentUser()?.id)) {
+              <input nz-input pattern="^-?\d+h?\s*-?\d*m?$" [(ngModel)]="issue.timeInput" (ngModelChange)="issue.timeSpent = convertToSeconds($event)">
+            } @else {
+              <nz-tag>{{issue.timeSpent | secondsToHours}}</nz-tag>
+            }
           }
         </div>
       </div>

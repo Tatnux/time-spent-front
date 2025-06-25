@@ -26,14 +26,17 @@ export interface INoteData {
 }
 
 export interface IActivityIssue {
+  id: string;
   issue: IIssue;
   activities: IActivity[];
   timeSpent: number;
   displayActivities?: IDisplayActivity[];
   mergeRequest?: IMergeRequest[];
-  dev?: boolean;
+  status?: Status;
   timeInput?: string;
 }
+
+export type Status = 'Dev' | 'Review';
 
 export interface IDisplayActivity {
   name: string;

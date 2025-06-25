@@ -1,13 +1,11 @@
 import {Component} from '@angular/core';
-import {TimeLogView} from './time-log-view/time-log-view';
 import {TranslateService} from '@ngx-translate/core';
-import {RouterOutlet} from '@angular/router';
+import {Layout} from './layout/layout';
 
 @Component({
   selector: 'app-root',
   imports: [
-    TimeLogView,
-    RouterOutlet
+    Layout
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss'

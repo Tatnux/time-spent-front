@@ -13,6 +13,8 @@ export class IterationService implements OnDestroy {
   readonly iterations: WritableSignal<IIteration[]> = signal([]);
   readonly currentIteration: WritableSignal<IIteration> = signal(undefined);
 
+  readonly selectedIteration: WritableSignal<IIteration> = signal(undefined);
+
   constructor(private readonly http: HttpClient) {
     this.observeIterations()
   }
@@ -20,12 +22,13 @@ export class IterationService implements OnDestroy {
   observeIterations() {
     this.subscription.add(
       forkJoin([
-        this.http.get<IIteration[]>('/api/iteration/current'),
-        this.http.get<IIteration[]>('/api/iteration/closed')
+        this.http.get<IIteration[]>('/api/iteration/current?first=1'),
+        this.http.get<IIteration[]>('/api/iteration/closed?first=12'),
+        this.http.get<IIteration[]>('/api/iteration/next?first=1'),
       ]).subscribe({
         next: value => {
           this.currentIteration.set(value[0][0]);
-          this.iterations.set([this.currentIteration(), ...value[1]].sort(this.sortFn));
+          this.iterations.set([this.currentIteration(), ...value[1], ...value[2]].sort(this.sortFn));
         },
         error: err => console.error('Unable to get iterations', err)
       })
@@ -42,5 +45,11 @@ export class IterationService implements OnDestroy {
 }
 
 export function iterationToUrl(iteration: IIteration): string {
-  return iteration?.state === "current" ? "current" : iteration?.id.split('/').pop();
+  if(iteration?.state === 'current') {
+    return 'current';
+  }
+  if(iteration?.state === 'upcoming') {
+    return 'next'
+  }
+  return iteration?.id.split('/').pop();
 }

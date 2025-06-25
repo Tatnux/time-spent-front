@@ -9,17 +9,19 @@
         <div class="title-actions">
           @if (!loading) {
             <app-time-log-sum [timeLogs]="timeLogs"/>
-            <nz-tag class="clickable-tag" (click)="openEditModal(day)"><span nz-icon nzType="edit"></span></nz-tag>
+            <nz-tag [class.clickable-tag]="isEditable(day)" (click)="openEditModal(day)"><span nz-icon nzType="edit"></span></nz-tag>
           }
         </div>
       </div>
       <nz-skeleton [nzActive]="true" [nzLoading]="loading" [nzParagraph]="{rows: 2}" [nzTitle]="null">
+        <div class="logs">
         @for (timeLog of timeLogs; track $index) {
-          <p>
+          <div class="tag">
             <nz-tag>{{timeLog.timeSpent | secondsToHours}}</nz-tag>
+          </div>
             <a [href]="timeLog.issue.webUrl" target="_blank">{{timeLog.issue.title}}</a>
-          </p>
         }
+        </div>
       </nz-skeleton>
     </div>
   }

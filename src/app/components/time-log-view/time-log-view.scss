@@ -1,0 +1,16 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+
+  flex: 1;
+}
+
+.select {
+  display: flex;
+  justify-content: space-between;
+  nz-select {
+    min-width: 15em;
+  }
+}
+

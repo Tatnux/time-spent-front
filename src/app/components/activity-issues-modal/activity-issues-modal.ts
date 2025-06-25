@@ -1,25 +1,25 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {ITimeLog} from '../../shared/models/time-log.model';
+import {ITimeLog} from '../../../shared/models/time-log.model';
 import {NZ_MODAL_DATA, NzModalFooterDirective, NzModalRef, NzModalTitleDirective} from 'ng-zorro-antd/modal';
 import {forkJoin, Observable, of, Subscription} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {NzSpinComponent} from 'ng-zorro-antd/spin';
-import {IActivityIssue, IDisplayActivity} from '../../shared/models/activity.model';
+import {IActivityIssue, IDisplayActivity} from '../../../shared/models/activity.model';
 import {NzTagComponent} from 'ng-zorro-antd/tag';
-import {SecondsToHoursPipe} from '../../shared/pipe/secondes-to-hours.pipe';
+import {SecondsToHoursPipe} from '../../../shared/pipe/secondes-to-hours.pipe';
 import {NzIconDirective} from 'ng-zorro-antd/icon';
 import {NzTooltipDirective} from 'ng-zorro-antd/tooltip';
 import {NzInputDirective} from 'ng-zorro-antd/input';
 import {FormsModule} from '@angular/forms';
 import {NzButtonComponent} from 'ng-zorro-antd/button';
-import {AuthService} from '../../shared/service/auth.service';
+import {AuthService} from '../../../shared/service/auth.service';
 import {DatePipe} from '@angular/common';
 import {TimeLogSumComponent} from '../time-log-chart/time-log-sum.component';
 import {TranslatePipe} from '@ngx-translate/core';
-import {PluralizePipe} from '../../shared/pipe/pluralize.pipe';
-import {UsernamePipe} from '../../shared/pipe/username.pipe';
-import {IMergeRequest} from '../../shared/models/merge-request.model';
-import {IIssue} from '../../shared/models/issue.model';
+import {PluralizePipe} from '../../../shared/pipe/pluralize.pipe';
+import {UsernamePipe} from '../../../shared/pipe/username.pipe';
+import {IMergeRequest} from '../../../shared/models/merge-request.model';
+import {IIssue} from '../../../shared/models/issue.model';
 
 export interface ActivityIssuesModalData {
   userId: string;
@@ -83,15 +83,16 @@ export class ActivityIssuesModal implements OnInit {
             this.issues = data;
             this.updateActivities();
           },
-          error: (err) => console.error('Non connecté', err)
+          error: (err) => console.error('An error occurred while getting the activity', err)
         })
     );
   }
 
   private updateActivities() {
     this.data.timeLogs.forEach(timeLog => {
-      if(!this.issues.some(issue => timeLog?.issue?.id.endsWith(issue.issue.id))) {
+      if(!this.issues.some(issue => timeLog?.issue?.id.endsWith(issue.issue?.id))) {
         this.issues.push({
+          id: timeLog.issue.id,
           issue: timeLog.issue,
           activities: [],
           timeSpent: timeLog.timeSpent,
@@ -99,65 +100,73 @@ export class ActivityIssuesModal implements OnInit {
       }
     })
     this.issues.forEach(issue => {
-      issue.dev = issue.activities.some(activity => this.getActionPrefix(activity.actionName) === 'pushed') &&
-        (!issue.issue.assignees[0] || this.data.userId.endsWith(issue.issue.assignees[0].id));
-      issue.timeSpent = this.getTimeSpent(issue.issue);
-      issue.timeInput = SecondsToHoursPipe.transform(issue.timeSpent);
+      const entity: IIssue | IMergeRequest = issue.issue ?? issue.mergeRequest[0];
+        issue.status = issue.activities.some(activity => this.getActionPrefix(activity.actionName) === 'pushed') &&
+          (!entity.assignees[0] || this.data.userId.endsWith(entity.assignees[0].id)) ? "Dev" : "Review";
+      if(issue.issue) {
+        issue.timeSpent = this.getTimeSpent(issue.issue);
+        issue.timeInput = SecondsToHoursPipe.transform(issue.timeSpent);
+      }
       this.updateDisplayActivities(issue);
     });
-    this.issues.sort(a => a.dev ? -1 : 1)
+    this.sortIssues();
   }
 
   private updateDisplayActivities(issue: IActivityIssue) {
     issue.displayActivities = [];
     issue.activities.forEach(activity => {
-      let displayActivity: IDisplayActivity = issue.displayActivities.find(value => value.actionName.startsWith(this.getActionPrefix(activity.actionName)));
-      if(!displayActivity) {
-        let name: string;
-        let webUrl: string;
-        let type: string;
-        const targetIid: number = activity?.note?.noteableIid ?? activity.targetIid;
-        // Pushed
-        if(activity.pushData) {
-          name = activity.pushData?.ref;
-          type = 'branch';
-        // Moved Issue
-        } else if(issue.issue.moved) {
-          activity.actionName = 'moved';
-          type = 'issue';
-          const movedIssue: IActivityIssue = this.issues.find((value: IActivityIssue) => value.issue.id === issue.issue.movedTo.id);
-          if(movedIssue) {
-            name = this.getProjectName(movedIssue.issue.webUrl) + '#' + movedIssue.issue.iid;
-            webUrl = movedIssue.issue.webUrl;
-          }
-        // Issue Ref
-        } else if(targetIid === issue.issue?.iid) {
-          name = '#' + issue.issue.iid;
-          webUrl = issue.issue.webUrl;
-          type = 'issue';
-        // Merge Request Ref
-        } else {
-          const mergeRequest: IMergeRequest = issue.mergeRequest.find(value => value.iid === targetIid);
-          if(mergeRequest) {
-            name = '!' + mergeRequest.iid;
-            webUrl = mergeRequest.webUrl;
-            type = 'merge request';
-          }
+      let name: string;
+      let webUrl: string;
+      let type: string;
+      const targetIid: number = activity?.note?.noteableIid ?? activity.targetIid;
+      // Pushed
+      if(activity.pushData) {
+        name = activity.pushData?.ref;
+        type = 'branch';
+      // Moved Issue
+      } else if(issue.issue?.moved && issue.issue?.movedTo) {
+        activity.actionName = 'moved';
+        type = 'issue';
+        const movedIssue: IActivityIssue = this.issues.find((value: IActivityIssue) => value.issue.id === issue.issue.movedTo.id);
+        if(movedIssue) {
+          name = this.getProjectName(movedIssue.issue.webUrl) + '#' + movedIssue.issue.iid;
+          webUrl = movedIssue.issue.webUrl;
         }
+      // Issue Ref
+      } else if(targetIid === issue.issue?.iid) {
+        name = '#' + issue.issue.iid;
+        webUrl = issue.issue.webUrl;
+        type = 'issue';
+      // Merge Request Ref
+      } else {
+        const mergeRequest: IMergeRequest = this.issues.flatMap(value => value.mergeRequest).find(value => value.iid === targetIid);
+        if(mergeRequest) {
+          name = '!' + mergeRequest.iid;
+          webUrl = mergeRequest.webUrl;
+          type = 'merge request';
+        }
+      }
 
-        displayActivity = {
-          actionName: activity.actionName,
-          count: 0,
-          name,
-          webUrl,
-          type,
-          tooltips: []
-        };
+      let displayActivity: IDisplayActivity = {
+        actionName: activity.actionName,
+        count: 0,
+        name,
+        webUrl,
+        type,
+        tooltips: []
+      };
 
+      let founded: IDisplayActivity = issue.displayActivities.find(value =>
+        this.getActionPrefix(value.actionName) === this.getActionPrefix(displayActivity.actionName) &&
+        value.type === displayActivity.type &&
+        value.name === displayActivity.name);
+      if(founded) {
+        displayActivity = founded;
+      } else {
         issue.displayActivities.push(displayActivity);
       }
 
-      if(displayActivity.actionName.startsWith("pushed")) {
+      if(displayActivity.actionName.startsWith("pushed") && activity.pushData.commitTitle) {
         displayActivity.tooltips.push(activity.pushData.commitTitle)
       }
 
@@ -220,4 +229,18 @@ export class ActivityIssuesModal implements OnInit {
   getCurrentTimeSpent(): { timeSpent: number }[] {
     return this.issues?.filter(value => value.timeInput).map(value => ({timeSpent: this.convertToSeconds(value.timeInput)})) ?? [];
   }
+
+  sortIssues(): void {
+    this.issues.sort((a, b) => {
+      const hasIssueA = a.issue ? -1 : 1;
+      const hasIssueB = b.issue ? -1 : 1;
+
+      const isDevA = a.status === 'Dev' ? -1 : 0;
+      const isDevB = b.status === 'Dev' ? -1 : 0;
+
+      return (hasIssueA - hasIssueB) + (isDevA - isDevB);
+
+    });
+  }
 }
+
