@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({ name: 'secondsToHours', standalone: true })
 export class SecondsToHoursPipe implements PipeTransform {
@@ -20,5 +20,24 @@ export class SecondsToHoursPipe implements PipeTransform {
     const hourPart: string = hours > 0 || minutes === 0 ? `${hours}h` : '';
 
     return `${sign}${hourPart}${minutePart}`;
+  }
+
+  static parse(value: string): number {
+    if (!value) return 0;
+
+    const trimmed = value.trim().toLowerCase();
+
+    const match: RegExpMatchArray = RegExp(/(?:(\d+)\s*h)?\s*(?:(\d+)\s*m?)?/).exec(trimmed);
+
+    if (!match) return 0;
+
+    const hours: number = parseInt(match[1] || '0', 10);
+    const minutes: number = parseInt(match[2] || '0', 10);
+
+    if(hours === 0 && (minutes !== 0 && !/m/.test(trimmed))) {
+      return 0;
+    }
+
+    return hours * 3600 + minutes * 60;
   }
 }

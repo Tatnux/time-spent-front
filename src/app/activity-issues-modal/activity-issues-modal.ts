@@ -179,14 +179,7 @@ export class ActivityIssuesModal implements OnInit {
   }
 
   convertToSeconds(duration: string): number {
-    const match = RegExp(/(?:(\d+)h)?(?:(\d+)m)?/i).exec(duration.replace(/\s+/g, ''));
-
-    if (!match) return 0;
-
-    const hours = parseInt(match[1] ?? '0', 10);
-    const minutes = parseInt(match[2] ?? '0', 10);
-
-    return hours * 3600 + minutes * 60;
+    return SecondsToHoursPipe.parse(duration);
   }
 
   public close(): void {
