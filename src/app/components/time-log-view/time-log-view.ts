@@ -9,6 +9,7 @@ import {IterationService, iterationToUrl} from '../../../shared/service/iteratio
 import {Router} from '@angular/router';
 import {IUser} from '../../../shared/models/user.model';
 import {UsernamePipe} from '../../../shared/pipe/username.pipe';
+import {IterationFormatPipe} from '../../../shared/pipe/iteration-format.pipe';
 
 @Component({
   selector: 'app-time-log-view',
@@ -17,7 +18,8 @@ import {UsernamePipe} from '../../../shared/pipe/username.pipe';
     NzSelectModule,
     NzOptionComponent,
     FormsModule,
-    UsernamePipe
+    UsernamePipe,
+    IterationFormatPipe
   ],
   templateUrl: './time-log-view.html',
   styleUrl: './time-log-view.scss'

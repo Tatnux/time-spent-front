@@ -4,16 +4,18 @@ import {formatDate} from '@angular/common';
 
 @Pipe({ name: 'iterationFormat' })
 export class IterationFormatPipe implements PipeTransform {
-  transform(iteration: IIteration): string {
-    return IterationFormatPipe.transform(iteration);
+  transform(iteration: IIteration, title: boolean = true): string {
+    return IterationFormatPipe.transform(iteration, true, title);
   }
 
-  static transform(iteration: IIteration, year: boolean = true): string {
-    if(iteration.state === 'current') {
-      return "Current Iteration";
-    }
-    if(iteration.state === 'upcoming') {
-      return "Next Iteration";
+  static transform(iteration: IIteration, year: boolean = true, title: boolean = true): string {
+    if(title) {
+      if(iteration.state === 'current') {
+        return "Current Iteration";
+      }
+      if(iteration.state === 'upcoming') {
+        return "Next Iteration";
+      }
     }
     const start = new Date(iteration.startDate);
     const end = new Date(iteration.dueDate);
