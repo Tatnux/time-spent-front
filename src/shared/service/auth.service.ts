@@ -22,7 +22,7 @@ export class AuthService  {
       }
     });
     this.subscription.add(
-      http.get<IUser>('/api/user/me')
+      http.get<IUser>('/api/users/me')
         .subscribe({
           next: (data) => {
             this.currentUser.set(data);
@@ -32,7 +32,7 @@ export class AuthService  {
     );
     if(environment.hostname === 'localhost') {
       this.subscription.add(
-        http.get('/api/user/token', {responseType: 'text'})
+        http.get('/api/users/token', {responseType: 'text'})
           .subscribe({
             next: (data) => {
               console.log(data);
