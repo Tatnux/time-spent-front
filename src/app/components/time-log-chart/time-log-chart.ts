@@ -77,7 +77,7 @@ export class TimeLogChart {
             const date: string = this.dateToKey(timeLog.spentAt);
             if(this.days.has(date)) {
               const logs: ITimeLog[] = this.days.get(date);
-              const existingLog: ITimeLog = logs.find(log => log.issue?.iid === timeLog.issue?.iid);
+              const existingLog: ITimeLog = logs.find(log => log.issue?.id === timeLog.issue?.id);
               if(existingLog) {
                 existingLog.timeSpent += timeLog.timeSpent;
               } else {
