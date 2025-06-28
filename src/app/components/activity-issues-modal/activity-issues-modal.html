@@ -1,78 +1,84 @@
 <div *nzModalTitle class="header">
   {{data.day | date: 'EEEE, MMMM d y'}}
-  <div>
+  <div class="tags">
     <app-time-log-sum [timeLogs]="data.timeLogs"/>
-    @if (data.userId.endsWith(authService.currentUser()?.id)) {
+    @if (issues[0] && data.userId.endsWith(authService.currentUser()?.id)) {
       <app-time-log-sum [timeLogs]="getCurrentTimeSpent()"/>
     }
   </div>
 </div>
 
-<nz-spin [nzSpinning]="!issues">
-  <div class="container">
-    @for (issue of issues; track issue.id) {
-      <div class="issue-activity">
-        @let entity = issue.issue ?? issue.mergeRequest[0];
-        <div class="issue">
-          <h3>
-            <a [href]="entity.webUrl" target="_blank">{{entity.title}}</a>
-          </h3>
-          @if (entity.assignees[0]) {
-            <nz-tag nzColor="blue"><span nz-icon nzType="user"></span> {{ entity.assignees[0].name | username}}</nz-tag>
-          }
-        </div>
-        <div class="title">
-          <div class="ref">
-            @if (issue.issue) {
-              <a [href]="issue.issue.webUrl" target="_blank">
-                <nz-tag nz-tooltip [nzTooltipTitle]="issue.issue.title" nzColor="green">{{getProjectName(issue.issue.webUrl)}}#{{issue.issue.iid}}</nz-tag>
-              </a>
-            }
-            @for (mr of issue.mergeRequest; track mr.id) {
-              <a [href]="mr.webUrl" target="_blank">
-                <nz-tag nz-tooltip [nzTooltipTitle]="mr.title" nzColor="volcano">{{getProjectName(mr.webUrl)}}!{{mr.iid}}</nz-tag>
-              </a>
+
+<div class="container">
+  @for (issue of issues; track $index) {
+    <div class="issue-activity">
+      <nz-skeleton [nzActive]="true" [nzLoading]="!issue" [nzParagraph]="{rows: 2}">
+        @if (issue) {
+          @let entity = issue.issue ?? issue.mergeRequest[0];
+          <div class="issue">
+            <h3>
+              <a [href]="entity.webUrl" target="_blank">{{entity.title}}</a>
+            </h3>
+            @if (entity.assignees[0]) {
+              <nz-tag nzColor="blue"><span nz-icon nzType="user"></span> {{ entity.assignees[0].name | username}}</nz-tag>
             }
           </div>
-          <div class="state-tags">
-            @if (!issue.issue) {
-              <nz-tag nzColor="red">Unlinked MR</nz-tag>
-            }
-            <nz-tag [nzColor]="issue.status === 'Dev' ? 'purple' : 'pink'">{{ issue.status }}</nz-tag>
+          <div class="title">
+            <div class="tags">
+              @if (issue.issue) {
+                <a [href]="issue.issue.webUrl" target="_blank">
+                  <nz-tag nz-tooltip [nzTooltipTitle]="issue.issue.title" nzColor="green">{{getProjectName(issue.issue.webUrl)}}#{{issue.issue.iid}}</nz-tag>
+                </a>
+              }
+              @for (mr of issue.mergeRequest; track mr.id) {
+                <a [href]="mr.webUrl" target="_blank">
+                  <nz-tag nz-tooltip [nzTooltipTitle]="mr.title" nzColor="volcano">{{getProjectName(mr.webUrl)}}!{{mr.iid}}</nz-tag>
+                </a>
+              }
+            </div>
+            <div class="tags">
+              @if (!issue.issue) {
+                <nz-tag nzColor="red">Unlinked MR</nz-tag>
+              }
+              <nz-tag [nzColor]="issue.status === 'Dev' ? 'purple' : 'pink'">{{ issue.status }}</nz-tag>
+            </div>
           </div>
-        </div>
-        <div class="issue-body">
-          <ul>
-            @for (activity of issue.displayActivities; track $index) {
-              <ng-template #tooltip>
-                <ul>
-                  @for (tooltip of activity.tooltips; track $index) {
-                    <li>{{tooltip}}</li>
+          <div class="issue-body">
+            <ul>
+              @for (activity of issue.displayActivities; track $index) {
+                <ng-template #tooltip>
+                  <ul>
+                    @for (tooltip of activity.tooltips; track $index) {
+                      <li>{{tooltip}}</li>
+                    }
+                  </ul>
+                </ng-template>
+                <li [nz-tooltip]="activity.tooltips.length > 0 ? tooltip : null" nzTooltipPlacement="left">
+                  {{"activity." + activity.actionName | translate: {count: activity.count, type: activity.type} | pluralize: activity.count}}
+                  @if (activity.type === 'branch') {
+                    <span class="branch">{{activity.name}}</span>
+                  } @else {
+                    <a [href]="activity.webUrl" target="_blank">{{ activity.name }}</a>
                   }
-                </ul>
-              </ng-template>
-              <li [nz-tooltip]="activity.tooltips.length > 0 ? tooltip : null" nzTooltipPlacement="left">
-                {{"activity." + activity.actionName | translate: {count: activity.count, type: activity.type} | pluralize: activity.count}}
-                @if (activity.type === 'branch') {
-                  <span class="branch">{{activity.name}}</span>
-                } @else {
-                  <a [href]="activity.webUrl" target="_blank">{{ activity.name }}</a>
-                }
-              </li>
+                </li>
+              }
+            </ul>
+            @if (issue.issue) {
+              @if (data.userId.endsWith(authService.currentUser()?.id)) {
+                <input nz-input pattern="^-?\d+h?\s*-?\d*m?$" [(ngModel)]="issue.timeInput" (ngModelChange)="issue.timeSpent = convertToSeconds($event)">
+              } @else {
+                <nz-tag>{{issue.timeSpent | secondsToHours}}</nz-tag>
+              }
             }
-          </ul>
-          @if (issue.issue) {
-            @if (data.userId.endsWith(authService.currentUser()?.id)) {
-              <input nz-input pattern="^-?\d+h?\s*-?\d*m?$" [(ngModel)]="issue.timeInput" (ngModelChange)="issue.timeSpent = convertToSeconds($event)">
-            } @else {
-              <nz-tag>{{issue.timeSpent | secondsToHours}}</nz-tag>
-            }
-          }
-        </div>
-      </div>
-    }
-  </div>
-</nz-spin>
+          </div>
+        }
+      </nz-skeleton>
+    </div>
+  }
+  @if (issues.length === 0) {
+    <nz-empty/>
+  }
+</div>
 
 <div *nzModalFooter>
   <button nz-button nzType="default" (click)="close()">Cancel</button>

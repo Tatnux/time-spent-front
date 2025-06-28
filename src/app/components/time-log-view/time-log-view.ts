@@ -22,7 +22,7 @@ import {IterationFormatPipe} from '../../../shared/pipe/iteration-format.pipe';
     IterationFormatPipe
   ],
   templateUrl: './time-log-view.html',
-  styleUrl: './time-log-view.scss'
+  styleUrl: './time-log-view.less'
 })
 export class TimeLogView {
 

@@ -1,9 +1,8 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {ITimeLog} from '../../../shared/models/time-log.model';
 import {NZ_MODAL_DATA, NzModalFooterDirective, NzModalRef, NzModalTitleDirective} from 'ng-zorro-antd/modal';
-import {forkJoin, Observable, of, Subscription} from 'rxjs';
+import {forkJoin, Observable, Subscription} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {NzSpinComponent} from 'ng-zorro-antd/spin';
 import {IActivityIssue, IDisplayActivity} from '../../../shared/models/activity.model';
 import {NzTagComponent} from 'ng-zorro-antd/tag';
 import {SecondsToHoursPipe} from '../../../shared/pipe/secondes-to-hours.pipe';
@@ -20,6 +19,8 @@ import {PluralizePipe} from '../../../shared/pipe/pluralize.pipe';
 import {UsernamePipe} from '../../../shared/pipe/username.pipe';
 import {IMergeRequest} from '../../../shared/models/merge-request.model';
 import {IIssue} from '../../../shared/models/issue.model';
+import {NzSkeletonComponent} from 'ng-zorro-antd/skeleton';
+import {NzEmptyComponent} from 'ng-zorro-antd/empty';
 
 export interface ActivityIssuesModalData {
   userId: string;
@@ -37,7 +38,6 @@ export interface ITimeLogUpdate {
 @Component({
   selector: 'app-activity-issues-modal',
   imports: [
-    NzSpinComponent,
     NzTagComponent,
     SecondsToHoursPipe,
     NzIconDirective,
@@ -51,10 +51,12 @@ export interface ITimeLogUpdate {
     TimeLogSumComponent,
     TranslatePipe,
     PluralizePipe,
-    UsernamePipe
+    UsernamePipe,
+    NzSkeletonComponent,
+    NzEmptyComponent
   ],
   templateUrl: './activity-issues-modal.html',
-  styleUrl: './activity-issues-modal.scss'
+  styleUrl: './activity-issues-modal.less'
 })
 export class ActivityIssuesModal implements OnInit {
 
@@ -62,7 +64,7 @@ export class ActivityIssuesModal implements OnInit {
 
   data: ActivityIssuesModalData = inject(NZ_MODAL_DATA);
 
-  issues: IActivityIssue[];
+  issues: IActivityIssue[] = [undefined];
 
   confirmLoading = false;
 
@@ -127,7 +129,7 @@ export class ActivityIssuesModal implements OnInit {
       } else if(issue.issue?.moved && issue.issue?.movedTo) {
         activity.actionName = 'moved';
         type = 'issue';
-        const movedIssue: IActivityIssue = this.issues.find((value: IActivityIssue) => value.issue.id === issue.issue.movedTo.id);
+        const movedIssue: IActivityIssue = this.issues.find((value: IActivityIssue) => value.issue?.id === issue.issue.movedTo.id);
         if(movedIssue) {
           name = this.getProjectName(movedIssue.issue.webUrl) + '#' + movedIssue.issue.iid;
           webUrl = movedIssue.issue.webUrl;
@@ -179,7 +181,7 @@ export class ActivityIssuesModal implements OnInit {
   }
 
   getTimeSpent(issue: IIssue): number {
-    return this.data.timeLogs?.find(value => value.issue.id.endsWith(issue.id))?.timeSpent ?? 0;
+    return this.data.timeLogs?.find(value => value.issue?.id.endsWith(issue?.id))?.timeSpent ?? 0;
   }
 
   getProjectName(url: string) {
@@ -197,6 +199,7 @@ export class ActivityIssuesModal implements OnInit {
 
   public validateChanges(): void {
     const requests: Observable<Object>[] = this.issues
+      .filter((issue: IActivityIssue) => issue.issue)
       .map((value: IActivityIssue) => {
         const seconds: number = this.convertToSeconds(value.timeInput);
         const timeSpent: number = this.getTimeSpent(value.issue);

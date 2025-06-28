@@ -7,6 +7,7 @@ import {IterationFormatPipe} from '../../shared/pipe/iteration-format.pipe';
 import {UsersService} from '../../shared/service/users.service';
 import {Title} from '@angular/platform-browser';
 import {UsernamePipe} from '../../shared/pipe/username.pipe';
+import {ThemeService} from '../../shared/service/theme.service';
 
 @Component({
   selector: 'app-layout',
@@ -29,6 +30,7 @@ export class Layout {
 
   constructor(private readonly router: Router,
               private readonly title: Title,
+              private readonly themeService: ThemeService,
               private readonly usersService: UsersService,
               protected readonly iterationService: IterationService) {
     effect(() => {
@@ -41,4 +43,8 @@ export class Layout {
       }
     })
   }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme().then();
+}
 }

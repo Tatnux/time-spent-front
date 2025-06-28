@@ -1,3 +1,14 @@
+@import "mixin";
+
+.themeMixin({
+  :host {
+    .issue-activity {
+      background: @table-body-sort-bg;
+      padding: 1em;
+    }
+  }
+});
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -9,15 +20,10 @@
   gap: 1em;
 
   max-height: 65vh;
-  min-width: 500px;
+  min-width: 700px;
 
   padding: 24px;
   overflow-y: auto;
-}
-
-.issue-activity {
-  background: #fafafa;
-  padding: 1em;
 }
 
 .issue {
@@ -55,4 +61,8 @@ input {
 
 ul {
   margin: 0 0 0 -20px;
+}
+
+nz-skeleton {
+  height: 80px;
 }

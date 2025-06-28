@@ -20,6 +20,7 @@
     "@ngx-translate/core": "^16.0.4",
     "@ngx-translate/http-loader": "^16.0.1",
     "apexcharts": "^4.7.0",
+    "less": "^4.3.0",
     "ng-apexcharts": "^1.16.0",
     "ng-zorro-antd": "^20.0.0-next.1",
     "rxjs": "~7.8.0",
