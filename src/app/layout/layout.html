@@ -2,16 +2,30 @@
   <nz-sider #sider nzWidth="250px" nzTheme="dark">
     <div class="logo" (click)="toggleTheme()" ></div>
     <ul nz-menu nzMode="inline" nzTheme="dark">
+      <li *appDev nz-menu-item [routerLink]="'burndown'" nzMatchRouter="burndown" >
+        <span nz-icon nzType="fire"></span>
+        Burndown
+      </li>
+      <li *appDev nz-menu-item [routerLink]="'presence-board'" nzMatchRouter="burndown" >
+        <span nz-icon nzType="calendar"></span>
+        Presence Board
+      </li>
       <li nz-submenu nzTitle="Iterations" nzIcon="retweet" nzOpen="true">
         <ul>
           @for (iteration of iterationService.iterations(); track iteration.id) {
-            <li [nzSelected]="iterationService.selectedIteration() === iteration" nz-menu-item (click)="iterationService.selectedIteration.set(iteration)">{{ iteration | iterationFormat }}</li>
+            <li nz-menu-item [routerLink]="iterationToUrl(iteration)" [nzMatchRouter]="iterationToUrl(iteration)" >{{ iteration | iterationFormat }}</li>
           }
         </ul>
       </li>
     </ul>
   </nz-sider>
   <nz-layout [style.margin-left]="sider.nzWidth" class="right-layout">
+    <nz-header *appDev>
+      <div class="header">
+        <h3>{{usersService.currentUser()?.name | username}}</h3>
+        <nz-avatar [nzSrc]="usersService.currentUser()?.avatarUrl"/>
+      </div>
+    </nz-header>
     <nz-content>
       <router-outlet/>
     </nz-content>

@@ -1,6 +1,6 @@
 import {Component, effect, input, InputSignal} from '@angular/core';
 import {NzTagComponent} from 'ng-zorro-antd/tag';
-import {SecondsToHoursPipe} from '../../../shared/pipe/secondes-to-hours.pipe';
+import {SecondsToHoursPipe} from '../../../../shared/pipe/secondes-to-hours.pipe';
 
 @Component({
   selector: 'app-time-log-sum',

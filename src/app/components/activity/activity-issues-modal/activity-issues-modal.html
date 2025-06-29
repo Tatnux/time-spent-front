@@ -40,7 +40,7 @@
               @if (!issue.issue) {
                 <nz-tag nzColor="red">Unlinked MR</nz-tag>
               }
-              <nz-tag [nzColor]="issue.status === 'Dev' ? 'purple' : 'pink'">{{ issue.status }}</nz-tag>
+              <nz-tag [nzColor]="statusColor[issue.status]">{{ issue.status }}</nz-tag>
             </div>
           </div>
           <div class="issue-body">

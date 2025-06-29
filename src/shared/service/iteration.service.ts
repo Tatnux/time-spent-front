@@ -2,6 +2,7 @@ import {Injectable, OnDestroy, signal, WritableSignal} from '@angular/core';
 import {forkJoin, Subscription} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {IIteration} from '../models/iteration.model';
+import {IIssue, IIterationIssue} from '../models/issue.model';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +34,10 @@ export class IterationService implements OnDestroy {
         error: err => console.error('Unable to get iterations', err)
       })
     );
+  }
+
+  public getIssues(iteration: IIteration) {
+    return this.http.get<IIterationIssue[]>(`/api/iteration/${iteration.id.split('/').pop()}/issues`);
   }
 
   ngOnDestroy() {

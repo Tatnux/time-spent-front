@@ -1,0 +1,45 @@
+
+<div>
+  @for (open of openIssues(); track open.issue.id) {
+    <a [href]="open.issue.webUrl" target="_blank">
+      <p>
+        {{open.issue.title}}
+        @for (label of open.issue.labels; track label.id) {
+          <shared-label-display [label]="label"/>
+        }
+      </p>
+      <p>{{open.issue.timeEstimate}}</p>
+      <p>{{open.spentTime | secondsToHours}}</p>
+      <p>{{open.spentTimeInIteration | secondsToHours}}</p>
+    </a>
+  }
+</div>
+
+
+<div>
+  @for (open of closedIssues(); track open.issue.id) {
+    <a [href]="open.issue.webUrl" target="_blank">
+      <p>
+        {{open.issue.title}}
+        @for (label of open.issue.labels; track label.id) {
+          <shared-label-display [label]="label"/>
+        }
+      </p>
+      <p>{{open.issue.timeEstimate}}</p>
+    </a>
+  }
+</div>
+
+
+
+<!--<div>-->
+<!--  @for (open of closedIssues; track open.id) {-->
+<!--    <a [href]="open.webUrl" target="_blank">-->
+<!--      <p>-->
+<!--        {{open.title}}-->
+<!--      </p>-->
+<!--    </a>-->
+<!--  }-->
+<!--</div>-->
+
+

@@ -16,9 +16,11 @@ export class AuthService  {
 
   constructor(http: HttpClient, userService: UsersService) {
     effect(() => {
-      const user: IGitlabUser = userService.users()?.find(value => value.username === untracked(() => this.currentUser())?.username);
+      const user: IGitlabUser = userService.users()?.find(value => value.username === this.currentUser()?.username);
       if(user) {
+        user.avatarUrl = this.currentUser()?.avatarUrl;
         this.currentUser.set(user);
+        userService.currentUser.set(user);
       }
     });
     this.subscription.add(

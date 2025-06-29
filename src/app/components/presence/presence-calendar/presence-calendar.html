@@ -1,0 +1,12 @@
+<svg width="880" height="140">
+  @for (week of dates; track weekIndex; let weekIndex = $index) {
+    <g [attr.transform]="'translate(' + (1 + (weekIndex + 1) * 16) + ', 18)'">
+      @for (day of week; track dayIndex; let dayIndex = $index) {
+        @if (day) {
+          <rect class="cell" [class.cellOff]="this.calendarService.getPublicHoliday(day)" nz-tooltip [nzTooltipTitle]="day.toDateString()" x="0"
+                [attr.y]="dayIndex * 16" rx="2" ry="2" width="14" height="14"/>
+        }
+      }
+    </g>
+  }
+</svg>

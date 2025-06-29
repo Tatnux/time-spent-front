@@ -11,6 +11,7 @@ export class UsersService implements OnDestroy {
   private readonly subscription: Subscription = new Subscription();
 
   readonly users: WritableSignal<IGitlabUser[]> = signal([]);
+  readonly currentUser: WritableSignal<IGitlabUser> = signal(undefined);
   readonly selectedUser: WritableSignal<IUser> = signal(undefined);
 
   constructor(private readonly http: HttpClient) {

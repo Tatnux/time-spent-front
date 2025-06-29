@@ -1,18 +1,18 @@
 import {Component, effect, OnDestroy, Signal} from '@angular/core';
-import {IIteration} from '../../../shared/models/iteration.model';
-import {ITimeLog} from '../../../shared/models/time-log.model';
+import {IIteration} from '../../../../shared/models/iteration.model';
+import {ITimeLog} from '../../../../shared/models/time-log.model';
 import {DatePipe, formatDate} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
-import {SecondsToHoursPipe} from '../../../shared/pipe/secondes-to-hours.pipe';
+import {SecondsToHoursPipe} from '../../../../shared/pipe/secondes-to-hours.pipe';
 import {NzTagComponent} from 'ng-zorro-antd/tag';
 import {NzModalService} from 'ng-zorro-antd/modal';
 import {NzIconDirective} from 'ng-zorro-antd/icon';
-import {ActivityIssuesModal, ActivityIssuesModalData} from '../activity-issues-modal/activity-issues-modal';
-import {IUser} from '../../../shared/models/user.model';
+import {ActivityIssuesModal, ActivityIssuesModalData} from '../../activity/activity-issues-modal/activity-issues-modal';
+import {IUser} from '../../../../shared/models/user.model';
 import {TimeLogSumComponent} from './time-log-sum.component';
 import {NzSkeletonComponent} from 'ng-zorro-antd/skeleton';
-import {UsersService} from '../../../shared/service/users.service';
-import {IterationService} from '../../../shared/service/iteration.service';
+import {UsersService} from '../../../../shared/service/users.service';
+import {IterationService} from '../../../../shared/service/iteration.service';
 import {Subscription} from 'rxjs';
 
 @Component({

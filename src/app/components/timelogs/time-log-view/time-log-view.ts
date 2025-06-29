@@ -1,15 +1,16 @@
 import {Component, effect, input, InputSignal} from '@angular/core';
-import {IIteration} from '../../../shared/models/iteration.model';
+import {IIteration} from '../../../../shared/models/iteration.model';
 import {TimeLogChart} from '../time-log-chart/time-log-chart';
 import {NzOptionComponent, NzSelectModule} from 'ng-zorro-antd/select';
 import {FormsModule} from '@angular/forms';
-import {AuthService} from '../../../shared/service/auth.service';
-import {UsersService} from '../../../shared/service/users.service';
-import {IterationService, iterationToUrl} from '../../../shared/service/iteration.service';
+import {AuthService} from '../../../../shared/service/auth.service';
+import {UsersService} from '../../../../shared/service/users.service';
+import {IterationService} from '../../../../shared/service/iteration.service';
 import {Router} from '@angular/router';
-import {IUser} from '../../../shared/models/user.model';
-import {UsernamePipe} from '../../../shared/pipe/username.pipe';
-import {IterationFormatPipe} from '../../../shared/pipe/iteration-format.pipe';
+import {IUser} from '../../../../shared/models/user.model';
+import {UsernamePipe} from '../../../../shared/pipe/username.pipe';
+import {IterationFormatPipe} from '../../../../shared/pipe/iteration-format.pipe';
+import {NzTagComponent} from 'ng-zorro-antd/tag';
 
 @Component({
   selector: 'app-time-log-view',
@@ -19,7 +20,8 @@ import {IterationFormatPipe} from '../../../shared/pipe/iteration-format.pipe';
     NzOptionComponent,
     FormsModule,
     UsernamePipe,
-    IterationFormatPipe
+    IterationFormatPipe,
+    NzTagComponent
   ],
   templateUrl: './time-log-view.html',
   styleUrl: './time-log-view.less'
@@ -34,9 +36,12 @@ export class TimeLogView {
               protected readonly usersService: UsersService,
               protected readonly iterationService: IterationService) {
     effect(() => {
+      this.iterationService.selectedIteration.set(this.iteration() ?? this.iterationService.currentIteration());
+    });
+
+    effect(() => {
       this.usersService.selectedUser.set(this.user() ?? usersService.users().find(value =>
         value.username === authService.currentUser()?.username));
-      this.iterationService.selectedIteration.set(this.iteration() ?? this.iterationService.currentIteration());
     });
   }
 }

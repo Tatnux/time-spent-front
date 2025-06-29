@@ -1,0 +1,17 @@
+@import "mixin";
+
+.themeMixin({
+  :host {
+    .cell {
+      fill: @fill-color;
+      &:hover {
+        cursor: pointer;
+        outline: none;
+        stroke: @text-color;
+      }
+    }
+    .cellOff {
+      fill: @disabled-bg;
+    }
+  }
+});

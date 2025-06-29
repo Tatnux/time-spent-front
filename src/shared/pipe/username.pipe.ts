@@ -11,7 +11,7 @@ export class UsernamePipe implements PipeTransform {
   }
 
   static transform(value: string): string {
-    if(value.includes('.') || value.includes('@')) {
+    if(value?.includes('.') || value?.includes('@')) {
       value = value.split('@')[0];
       return value.split('.').map(this.titleCase.transform).join(' ');
     }

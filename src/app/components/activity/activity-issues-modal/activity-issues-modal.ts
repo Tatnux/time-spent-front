@@ -1,26 +1,34 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {ITimeLog} from '../../../shared/models/time-log.model';
+import {ITimeLog} from '../../../../shared/models/time-log.model';
 import {NZ_MODAL_DATA, NzModalFooterDirective, NzModalRef, NzModalTitleDirective} from 'ng-zorro-antd/modal';
 import {forkJoin, Observable, Subscription} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {IActivityIssue, IDisplayActivity} from '../../../shared/models/activity.model';
+import {
+  IActivity,
+  IActivityIssue,
+  IDisplayActivity,
+  Status,
+  statusColor,
+  statusOrder
+} from '../../../../shared/models/activity.model';
 import {NzTagComponent} from 'ng-zorro-antd/tag';
-import {SecondsToHoursPipe} from '../../../shared/pipe/secondes-to-hours.pipe';
+import {SecondsToHoursPipe} from '../../../../shared/pipe/secondes-to-hours.pipe';
 import {NzIconDirective} from 'ng-zorro-antd/icon';
 import {NzTooltipDirective} from 'ng-zorro-antd/tooltip';
 import {NzInputDirective} from 'ng-zorro-antd/input';
 import {FormsModule} from '@angular/forms';
 import {NzButtonComponent} from 'ng-zorro-antd/button';
-import {AuthService} from '../../../shared/service/auth.service';
+import {AuthService} from '../../../../shared/service/auth.service';
 import {DatePipe} from '@angular/common';
-import {TimeLogSumComponent} from '../time-log-chart/time-log-sum.component';
+import {TimeLogSumComponent} from '../../timelogs/time-log-chart/time-log-sum.component';
 import {TranslatePipe} from '@ngx-translate/core';
-import {PluralizePipe} from '../../../shared/pipe/pluralize.pipe';
-import {UsernamePipe} from '../../../shared/pipe/username.pipe';
-import {IMergeRequest} from '../../../shared/models/merge-request.model';
-import {IIssue} from '../../../shared/models/issue.model';
+import {PluralizePipe} from '../../../../shared/pipe/pluralize.pipe';
+import {UsernamePipe} from '../../../../shared/pipe/username.pipe';
+import {IMergeRequest} from '../../../../shared/models/merge-request.model';
+import {IIssue} from '../../../../shared/models/issue.model';
 import {NzSkeletonComponent} from 'ng-zorro-antd/skeleton';
 import {NzEmptyComponent} from 'ng-zorro-antd/empty';
+import {IGitlabUser} from '../../../../shared/models/user.model';
 
 export interface ActivityIssuesModalData {
   userId: string;
@@ -102,9 +110,7 @@ export class ActivityIssuesModal implements OnInit {
       }
     })
     this.issues.forEach(issue => {
-      const entity: IIssue | IMergeRequest = issue.issue ?? issue.mergeRequest[0];
-        issue.status = issue.activities.some(activity => this.getActionPrefix(activity.actionName) === 'pushed') &&
-          (!entity.assignees[0] || this.data.userId.endsWith(entity.assignees[0].id)) ? "Dev" : "Review";
+      issue.status = this.findStatus(issue);
       if(issue.issue) {
         issue.timeSpent = this.getTimeSpent(issue.issue);
         issue.timeInput = SecondsToHoursPipe.transform(issue.timeSpent);
@@ -193,6 +199,21 @@ export class ActivityIssuesModal implements OnInit {
     return SecondsToHoursPipe.parse(duration);
   }
 
+  private findStatus(issue: IActivityIssue): Status {
+    const entity: IIssue | IMergeRequest = issue.issue ?? issue.mergeRequest[0];
+
+    if (issue.activities.some((activity: IActivity) => this.getActionPrefix(activity.actionName) === 'pushed') &&
+      (entity.assignees.length === 0 || entity.assignees.some((value: IGitlabUser) => this.data.userId.endsWith(value.id)))) {
+      return 'Development'
+    }
+
+    if(issue.activities.some(activity => ['closed', 'approved', 'accepted', 'commented on'].includes(activity.actionName))) {
+      return 'Review'
+    }
+
+    return 'Other';
+  }
+
   public close(): void {
     this.ref.destroy();
   }
@@ -234,16 +255,15 @@ export class ActivityIssuesModal implements OnInit {
   }
 
   sortIssues(): void {
-    this.issues.sort((a, b) => {
-      const hasIssueA = a.issue ? -1 : 1;
-      const hasIssueB = b.issue ? -1 : 1;
+    this.issues.sort((a: IActivityIssue, b: IActivityIssue) => {
+      if(a.status !== b.status) {
+        return statusOrder[a.status] - statusOrder[b.status];
+      }
 
-      const isDevA = a.status === 'Dev' ? -1 : 0;
-      const isDevB = b.status === 'Dev' ? -1 : 0;
-
-      return (hasIssueA - hasIssueB) + (isDevA - isDevB);
-
+      return (b.timeSpent ?? 0) - (a.timeSpent ?? 0);
     });
   }
+
+  protected readonly statusColor = statusColor;
 }
 

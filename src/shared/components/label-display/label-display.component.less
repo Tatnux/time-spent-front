@@ -1,0 +1,29 @@
+.gl-label {
+  display: inline-flex;
+  align-items: center;
+
+  font-size: 12px;
+
+  background: #18171d;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 2px var(--label-color) !important;
+  border-radius: 20px;
+  padding: 1px;
+
+  div {
+    display: flex;
+    align-items: center;
+    > * {
+      white-space: nowrap;
+    }
+  }
+
+  .title {
+    padding: 0 5px;
+    background-color: var(--label-color);
+  }
+
+  .suffix {
+    padding: 0 5px 0 2px;
+  }
+}

@@ -1,5 +1,6 @@
 import {IMergeRequest} from './merge-request.model';
 import {IIssue} from './issue.model';
+import {NzPresetColor, NzStatusColor} from 'ng-zorro-antd/core/color';
 
 export interface IActivity {
   id: number;
@@ -36,7 +37,19 @@ export interface IActivityIssue {
   timeInput?: string;
 }
 
-export type Status = 'Dev' | 'Review';
+export type Status = 'Development' | 'Review' | 'Other';
+
+export const statusOrder: Record<Status, number> = {
+  Development: 0,
+  Review: 1,
+  Other: 2
+}
+
+export const statusColor: Record<Status, string> = {
+  Development: 'orange',
+  Review: 'purple',
+  Other: '#bbb'
+}
 
 export interface IDisplayActivity {
   name: string;

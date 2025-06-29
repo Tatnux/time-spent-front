@@ -9,6 +9,10 @@ export class IterationFormatPipe implements PipeTransform {
   }
 
   static transform(iteration: IIteration, year: boolean = true, title: boolean = true): string {
+    if(!iteration) {
+      return "";
+    }
+
     if(title) {
       if(iteration.state === 'current') {
         return "Current Iteration";

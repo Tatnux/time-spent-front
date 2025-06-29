@@ -1,0 +1,23 @@
+<div class="select">
+  <h2>{{ iteration() | iterationFormat: false }}</h2>
+  <nz-select [ngModel]="usersService.selectedUser()" (ngModelChange)="usersService.selectedUser.set($event)" [nzShowSearch]="true">
+    @for (user of usersService.users(); track user.id) {
+      <nz-option [nzValue]="user" [nzLabel]="user.name | username" nzCustomContent>
+        @if (user.gpcRole === 'gael_owners') {
+          <nz-tag nzColor="red">O</nz-tag>
+        } @else if (user.gpcRole === 'gael_support') {
+          <nz-tag nzColor="purple">S</nz-tag>
+        } @else if (user.gpcRole === 'gael_maintainers') {
+          <nz-tag nzColor="blue">M</nz-tag>
+        } @else {
+          <nz-tag nzColor="orange">D</nz-tag>
+        }
+        {{user.name | username}}
+      </nz-option>
+    }
+  </nz-select>
+</div>
+
+<app-time-log-chart/>
+
+
